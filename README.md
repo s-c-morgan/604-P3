@@ -1,34 +1,35 @@
-# Cilantro Freshness Analyzer
+# Cilantro HSV Analyzer
 
-A Python-based tool for analyzing cilantro freshness using HSV color-based segmentation and computer vision.
+A Python-based tool for comparing cilantro images using HSV color-based segmentation and computer vision.
 
 ## Overview
 
-This project provides two main tools:
+This project provides tools for extracting and comparing HSV color statistics from multiple cilantro images:
 
-1. **HSV Threshold Finder** (`hsv_threshold_finder.py`) - An interactive tool with real-time sliders to find the perfect HSV color threshold values for your specific camera and lighting conditions.
+1. **HSV Threshold Finder** (`hsv_threshold_finder.py`) - Interactive tool to find optimal HSV threshold values for your camera and lighting setup.
 
-2. **Cilantro Analyzer** (`cilantro_analyzer.py`) - Analyzes cilantro images using color segmentation to assess freshness based on hue, saturation, and brightness.
+2. **Batch Cilantro Analyzer** (`batch_cilantro_analyzer.py`) - Processes multiple cilantro images using the same HSV mask and compiles statistics into a comparison table.
+
+3. **Single Image Analyzer** (`cilantro_analyzer.py`) - Analyzes individual cilantro images with detailed visualization.
 
 ## How It Works
 
-### Color-Based Thresholding
+### HSV Color Space
 
-The tool uses **HSV (Hue, Saturation, Value) color space** instead of RGB because:
+The tool uses **HSV (Hue, Saturation, Value)** instead of RGB because:
 
-- **Hue (H)**: Represents the actual color (green for cilantro), independent of lighting
-- **Saturation (S)**: Represents color intensity (vivid vs. dull)
-- **Value (V)**: Represents brightness (bright vs. dark)
+- **Hue (H)**: The actual color (green for cilantro), independent of lighting
+- **Saturation (S)**: Color intensity (vivid vs. dull)
+- **Value (V)**: Brightness level (bright vs. dark)
 
-This separation makes it much easier to isolate green cilantro from backgrounds, even under varying lighting conditions.
+This separation makes it easier to isolate green cilantro from backgrounds under varying lighting conditions.
 
 ### Process
 
-1. **Convert to HSV**: Transform the image from RGB to HSV color space
-2. **Define Thresholds**: Set minimum and maximum values for H, S, and V that represent "fresh green"
-3. **Create Mask**: Generate a binary mask where white pixels = cilantro, black pixels = background
-4. **Analyze Colors**: Calculate statistics on the segmented cilantro pixels
-5. **Assess Freshness**: Score freshness based on color properties
+1. **Convert to HSV**: Transform images from RGB to HSV color space
+2. **Apply Threshold Mask**: Use the same H, S, V ranges to segment cilantro from background
+3. **Extract Statistics**: Calculate mean and standard deviation for H, S, V values
+4. **Compare**: Compile results into a table for side-by-side comparison
 
 ## Installation
 
@@ -39,211 +40,182 @@ This separation makes it much easier to isolate green cilantro from backgrounds,
 
 ### Setup
 
-1. Clone or download this repository:
+1. Navigate to the repository:
 ```bash
 cd 604-P3
 ```
 
-2. Install required dependencies:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-This will install:
+This installs:
 - `opencv-python` - Computer vision library
 - `numpy` - Numerical computing library
 
 ## Usage
 
-### Step 1: Find Your HSV Thresholds (First Time Setup)
+### Step 1: Find Your HSV Thresholds (One-Time Setup)
 
-Before analyzing cilantro, you need to find the perfect HSV threshold values for your camera and lighting setup.
+Find the optimal HSV threshold values for your camera and lighting:
 
 ```bash
-python hsv_threshold_finder.py <path_to_cilantro_image>
-```
-
-Example:
-```bash
-python hsv_threshold_finder.py samples/cilantro_fresh.jpg
+python hsv_threshold_finder.py images/cilantro.jpg
 ```
 
 **Interactive Controls:**
-- Use the **trackbars** to adjust H, S, V min/max values in real-time
-- Watch the **4 windows** update as you adjust:
-  1. **Original** - Your input image
-  2. **HSV** - HSV color space representation
-  3. **Mask** - Binary mask (white = detected cilantro, black = background)
-  4. **Result** - Segmented cilantro with background removed
-
-- Press **'s'** to save your threshold values to `cilantro_hsv_thresholds.txt`
+- Adjust **H, S, V min/max** sliders in real-time
+- Watch 4 windows update live:
+  - Original image
+  - HSV representation
+  - Binary mask (white = cilantro, black = background)
+  - Segmented result
+- Press **'s'** to save threshold values
 - Press **'q'** to quit
 
-**Tips for Finding Good Thresholds:**
-- Start with the default values (H: 35-85, S: 40-255, V: 40-255)
-- Adjust **H Min/Max** first to capture all green colors
-- Adjust **S Min** to filter out grayish/dull colors (background)
-- Adjust **V Min** to filter out dark shadows
-- The goal is a clean white mask on cilantro with minimal background noise
+**Tips:**
+- Default values (H: 35-85, S: 40-255, V: 40-255) work well for fresh green cilantro
+- Adjust **H Min/Max** to capture all green hues
+- Increase **S Min** to filter out dull/gray backgrounds
+- Goal: Clean white mask covering only cilantro
 
-### Step 2: Update Threshold Values
+### Step 2: Update Threshold Values (Optional)
 
-Once you find good threshold values:
+If you customized the thresholds, update them in `batch_cilantro_analyzer.py`:
 
-1. Open `cilantro_analyzer.py` in a text editor
-2. Find the configuration section at the top:
 ```python
-# ==============================================================================
-# CONFIGURATION: Update these values from hsv_threshold_finder.py
-# ==============================================================================
-
 LOWER_GREEN = np.array([35, 40, 40])   # [H_min, S_min, V_min]
 UPPER_GREEN = np.array([85, 255, 255]) # [H_max, S_max, V_max]
 ```
 
-3. Replace the values with your saved threshold values from `cilantro_hsv_thresholds.txt`
+### Step 3: Batch Process Images
 
-### Step 3: Analyze Cilantro Freshness
-
-Now you can analyze any cilantro image:
+Add all your cilantro images to the `images/` folder, then run:
 
 ```bash
-python cilantro_analyzer.py <path_to_cilantro_image>
+python batch_cilantro_analyzer.py
 ```
 
-Example:
+**Options:**
 ```bash
-python cilantro_analyzer.py my_cilantro.jpg
+# Process different directory
+python batch_cilantro_analyzer.py --dir my_photos/
+
+# Custom output filename
+python batch_cilantro_analyzer.py --output results.csv
+
+# Save mask visualizations
+python batch_cilantro_analyzer.py --save-masks
 ```
 
 **Output:**
-- **Console Report** with:
-  - Segmentation statistics (pixel count, coverage)
-  - Color analysis (mean hue, saturation, brightness)
-  - Freshness score (0-100)
-  - Freshness assessment (Fresh/Good/Fair/Poor)
-  - Detailed factors explaining the score
 
-- **Visual Window** showing:
-  - Original image
-  - HSV representation
-  - Binary mask
-  - Segmented result
+**Console table:**
+```
+Filename                      Pixels   Coverage    H (μ)    H (σ)    S (μ)    S (σ)    V (μ)    V (σ)
+cilantro_day1.jpg          1,213,284     9.95%     41.2      2.6    140.3     40.8     70.7     21.9
+cilantro_day3.jpg            987,542     8.10%     43.5      3.1    125.8     45.2     65.3     23.4
+```
 
-## Understanding the Results
-
-### Freshness Score (0-100)
-
-The analyzer evaluates freshness based on three factors:
-
-1. **Saturation (40 points max)**
-   - High saturation = vivid, fresh green
-   - Low saturation = dull, grayish (wilting or yellowing)
-
-2. **Brightness/Value (30 points max)**
-   - Optimal: Neither too dark nor washed out
-   - Fresh cilantro has moderate to high brightness
-
-3. **Hue/Color (30 points max)**
-   - Should be in the green range (hue 45-75 is optimal)
-   - Off-color may indicate decay
-
-### Assessment Categories
-
-- **80-100**: FRESH - Excellent condition
-- **60-79**: GOOD - Still fresh, use soon
-- **40-59**: FAIR - Starting to degrade
-- **0-39**: POOR - Consider replacing
+**CSV file** (`cilantro_stats.csv`):
+- All HSV statistics (mean + std dev)
+- BGR color values
+- Pixel counts and coverage percentages
+- Image dimensions
+- Ready for Excel/statistical analysis
 
 ## Example Workflow
 
 ```bash
-# 1. First time: Find your thresholds with a sample image
-python hsv_threshold_finder.py samples/fresh_cilantro.jpg
+# 1. Find optimal thresholds (one-time setup)
+python hsv_threshold_finder.py images/sample.jpg
 
-# 2. Adjust sliders until mask looks perfect
-#    Press 's' to save values
-#    Press 'q' to quit
+# 2. Add all cilantro images to images/ folder
+cp ~/Photos/cilantro_*.jpg images/
 
-# 3. Update LOWER_GREEN and UPPER_GREEN in cilantro_analyzer.py
+# 3. Batch process all images
+python batch_cilantro_analyzer.py --save-masks
 
-# 4. Analyze your cilantro
-python cilantro_analyzer.py my_cilantro_photo.jpg
+# 4. Open cilantro_stats.csv in Excel for comparison
 ```
+
+## Understanding the Output
+
+### HSV Statistics
+
+- **Mean Hue (μ)**: Average color value (0-179)
+  - Lower values: yellowish-green
+  - Higher values: bluish-green
+
+- **Mean Saturation (μ)**: Average color intensity (0-255)
+  - Lower: dull, grayish
+  - Higher: vivid, intense
+
+- **Mean Value (μ)**: Average brightness (0-255)
+  - Lower: darker
+  - Higher: brighter
+
+- **Standard Deviation (σ)**: Color variation within the image
+  - Lower: uniform color
+  - Higher: varied coloring
+
+### Comparing Images
+
+Use the CSV or console table to compare:
+- Color changes over time (hue shifts)
+- Loss of vibrancy (saturation drops)
+- Darkening (value decreases)
+- Color uniformity (std dev changes)
 
 ## Troubleshooting
 
 ### "No cilantro detected!"
 
-This means the mask found no pixels matching your HSV thresholds.
+**Solutions:**
+1. Run `hsv_threshold_finder.py` to visualize the mask
+2. Adjust thresholds to be more inclusive
+3. Ensure cilantro is visible in the image
+
+### Background being detected as cilantro
 
 **Solutions:**
-1. Run `hsv_threshold_finder.py` again with your image
-2. Adjust the threshold values to be more inclusive
-3. Check that your image actually contains visible green cilantro
+1. Increase **S Min** to filter out dull colors
+2. Narrow **H Min/Max** range
+3. Adjust **V Min** to exclude shadows
 
-### Background is being detected as cilantro
-
-Your thresholds are too broad.
+### Cilantro not fully detected
 
 **Solutions:**
-1. Increase **S Min** (saturation minimum) to filter out dull colors
-2. Narrow the **H Min/Max** range to be more specific to cilantro's green
-3. Adjust **V Min** to filter out dark areas
-
-### Cilantro is not fully detected
-
-Your thresholds are too narrow.
-
-**Solutions:**
-1. Widen the **H Min/Max** range
-2. Lower **S Min** to include less saturated greens
+1. Widen **H Min/Max** range
+2. Lower **S Min** to include less saturated areas
 3. Lower **V Min** to include darker areas
 
 ## Project Structure
 
 ```
 604-P3/
-├── README.md                          # This file
-├── requirements.txt                   # Python dependencies
-├── hsv_threshold_finder.py           # Interactive threshold finder
-├── cilantro_analyzer.py              # Main analysis script
-└── cilantro_hsv_thresholds.txt       # Saved threshold values (generated)
+├── README.md                      # This file
+├── requirements.txt               # Python dependencies
+├── hsv_threshold_finder.py       # Interactive threshold calibration tool
+├── batch_cilantro_analyzer.py    # Batch processing and comparison
+├── cilantro_analyzer.py          # Single image analysis
+├── images/                        # Image directory
+└── cilantro_stats.csv            # Output statistics (generated)
 ```
 
 ## Technical Details
 
-### HSV Color Space
-
-OpenCV uses the following ranges:
-- **Hue (H)**: 0-179 (0° to 360° mapped to 0-179)
-- **Saturation (S)**: 0-255 (0% to 100% mapped to 0-255)
-- **Value (V)**: 0-255 (brightness from black to full color)
+### HSV Ranges (OpenCV)
+- **Hue (H)**: 0-179 (360° mapped to 0-179)
+- **Saturation (S)**: 0-255 (0-100% mapped to 0-255)
+- **Value (V)**: 0-255 (brightness)
 
 ### Morphological Operations
-
-The tools use morphological operations to clean up the binary mask:
-- **MORPH_CLOSE**: Fills small holes in the detected regions
-- **MORPH_OPEN**: Removes small noise/speckles
-
-This results in cleaner, more accurate segmentation.
+- **MORPH_CLOSE**: Fills small holes
+- **MORPH_OPEN**: Removes noise/speckles
+- Results in cleaner segmentation
 
 ## License
 
-This project is open source and available for educational and research purposes.
-
-## Contributing
-
-Contributions are welcome! Feel free to:
-- Report bugs
-- Suggest improvements
-- Add new features (e.g., batch processing, different freshness metrics)
-
-## Future Enhancements
-
-Possible improvements:
-- Batch processing multiple images
-- Save analysis reports to CSV/JSON
-- Machine learning-based freshness classification
-- Support for other herbs and vegetables
-- Web interface for easier use
+Open source for educational and research purposes.
