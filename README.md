@@ -10,8 +10,6 @@ This project provides tools for extracting and comparing HSV color statistics fr
 
 2. **Batch Cilantro Analyzer** (`batch_cilantro_analyzer.py`) - Processes multiple cilantro images using the same HSV mask and compiles statistics into a comparison table.
 
-3. **Single Image Analyzer** (`cilantro_analyzer.py`) - Analyzes individual cilantro images with detailed visualization.
-
 ## How It Works
 
 ### HSV Color Space
@@ -199,7 +197,6 @@ Use the CSV or console table to compare:
 ├── requirements.txt               # Python dependencies
 ├── hsv_threshold_finder.py       # Interactive threshold calibration tool
 ├── batch_cilantro_analyzer.py    # Batch processing and comparison
-├── cilantro_analyzer.py          # Single image analysis
 ├── images/                        # Image directory
 └── cilantro_stats.csv            # Output statistics (generated)
 ```
