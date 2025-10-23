@@ -46,6 +46,7 @@ For convenience and budgetary concerns, we decided to use a group mate's mini-fr
 \textit{Mini-Fridge layout}
 \end{center}
 
+
 ## Randomization Scheme
 
 From our 40 cilantro stalks, we assigned a group of 5 cilantro stalks to one of eight treatment groups at random. The treatment plans for each of the eight groups is as follows:
@@ -65,19 +66,17 @@ From our 40 cilantro stalks, we assigned a group of 5 cilantro stalks to one of 
 
 The weight of each set of sprigs is measured in grams daily (thus, 8 measurements per day) using an AmazonBasic scale with dubious precision. One image of each set is taken daily under as similar lighting conditions as possible using the same smart phone camera.
 
-## Data processing
+## Data Processing
 
 To quantify cilantro freshness from daily images, we use computer vision techniques with HSV (Hue, Saturation, Value) color space analysis. Each image is converted from RGB to HSV color space, which separates color information (hue) from intensity and lighting effects. We apply a calibrated HSV threshold mask (H: 35-85, S: 40-255, V: 40-255) to segment cilantro pixels from the background, producing a binary segmentation.
 
-After segmentation, we use contour detection to identify exactly 5 sprigs per image. Contours are identified using the RETR_EXTERNAL method, which finds outer boundaries of connected regions. To ensure we detect exactly 5 sprigs, we use an adaptive threshold approach: starting with a minimum area threshold of 10,000 pixels, we iteratively relax this threshold (reducing by 30% each iteration) until at least 5 contours are detected. Once found, the 5 largest contours are selected and assigned unique identifiers (1-5). This approach ensures consistent sprig counts across images while prioritizing the largest, most prominent sprigs in each image.
+After segmentation, we use contour detection to identify exactly 5 sprigs per image. Contours are identified using the RETR_EXTERNAL method, which finds outer boundaries of connected regions. To ensure we detect exactly 5 sprigs, we use an adaptive threshold approach: starting with a minimum area threshold of 10,000 pixels, we iteratively relax this threshold (reducing by 30% each iteration) until at least 5 contours are detected. Once found, the 5 largest contours are selected and assigned unique identifiers (1-5).
 
 From each individual sprig, we extract the following metrics as indicators of freshness:
 
-- **Mean Hue**: Average green color (0-179 scale); shifts indicate color change from fresh green to yellow/brown
-- **Mean Saturation**: Color intensity (0-255 scale); decreases indicate loss of vibrancy as cilantro wilts
-- **Mean Value**: Brightness level (0-255 scale); changes indicate darkening or drying
-
-These HSV-based metrics provide objective, quantitative measures of cilantro freshness that can be tracked over time for each individual sprig and compared across treatment conditions. By selecting exactly 5 sprigs per image, we ensure consistent sample sizes across all treatment groups and time points, enabling balanced statistical comparisons.
+- **Mean Hue**: Average green color (0-179 scale)
+- **Mean Saturation**: Color intensity (0-255 scale)
+- **Mean Value**: Brightness level (0-255 scale)
 
 Figure 1 illustrates the HSV segmentation and sprig identification process applied to a sample cilantro image. The original image (left) is converted to HSV color space and thresholded to create a binary mask (center), where white pixels represent detected cilantro and black pixels represent background. The adaptive contour detection algorithm then identifies the 5 largest sprigs (right), with each sprig outlined in a different color and labeled with a unique identifier (1-5). HSV statistics are calculated separately for each of the 5 selected sprigs.
 
