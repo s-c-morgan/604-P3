@@ -1,16 +1,93 @@
 ---
 title: "STATS 604 Project 3 Preanalysis Plan"
-author: "Carlyle Morgan"
+author: "Khoa Do, Surtai Han, Jialin He, Carlyle Morgan"
 date: "2025-10-23"
 output: pdf_document
 ---
 
 # Introduction
 
+In this project, we attempt to analyze various procedures for preserving the freshness of cilantro. Namely, we will attempt to measure if the following have any effect:
+
+\begin{itemize}
+  \item Keeping cilantro in the fridge versus outside
+  \item Keeping cilantro in a plastic bag versus not
+  \item For refrigerated cilantro, keeping cilantro close to the cooling source at the top of the fridge versus farther away.
+\end{itemize}
+
+We hypothesize that cilantro kept in a fridge in a bag and far away from the cooling source will remain fresh for longer.
+
 # Methodology
+
+## Experimental setup
+
+For convience and budgetary concerns, we decided to use a group ate's mini-fridge to study the effect
+
+\begin{center}
+\begin{tabular}{|c|}
+\hline
+\\
+\textbf{Shelf 1 (Top)} \\
+\textit{Closest to cooling source} \\
+\\
+\hline
+\\
+\textbf{Shelf 2} \\
+\\
+\\
+\hline
+\\
+\textbf{Shelf 3} \\
+\textit{Farthest from cooling source} \\
+\\
+\hline
+\end{tabular}
+
+\textit{Mini-Fridge layout}
+\end{center}
 
 ## Randomization Scheme
 
-# Preliminary Results
+From our 40 cilantro stalks, we assigned a group of 5 cilantro stalks to one of eight treatment groups at random. The treatment plans for each of the eight groups is as follows:
+
+| Group | Location | Bagged |
+|-------|----------|--------|
+| 1 | Outside the fridge | No |
+| 2 | Outside the fridge | Yes |
+| 3 | Fridge shelf 1 | No |
+| 4 | Fridge shelf 1 | Yes |
+| 5 | Fridge shelf 2 | No |
+| 6 | Fridge shelf 2 | Yes |
+| 7 | Fridge shelf 3 | No |
+| 8 | Fridge shelf 3 | Yes |
+
+
+
+# Testing Procedure
+
+
+Things to test:
+
+1. Fridge layer versus each other
+
+- Compute mean of differences and compare
+- Compute F statistic, permutation test on F statistic for the three levels
+  - Sensitive to outliers
+
+Possible issue: when we weigh cilantros collectively, we can't really apply a permutation test.
+So do we continue to use weight as a metric?
+
+If no significance found, pool the fridge samples
+
+2. Fridge versus outside
+
+3. Out of bag vs in-bag
+  -If Test 1 was significant, there is some necessary stratification.
+  
+Should pre-analysis plan specify response to common issues? (i.e. If my data has a long tail, should I pre-specify that I plan to use medians. A: yes)
+
+More versatile possiblity: using ranks, which works with F statistics.
+
+
 
 
