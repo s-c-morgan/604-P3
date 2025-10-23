@@ -7,6 +7,7 @@ output: pdf_document
 
 # Introduction
 
+<<<<<<< HEAD
 In this project, we attempt to analyze various procedures for preserving the freshness of cilantro. Namely, we will attempt to measure if the following have any effect:
 
 \begin{itemize}
@@ -16,6 +17,18 @@ In this project, we attempt to analyze various procedures for preserving the fre
 \end{itemize}
 
 We hypothesize that cilantro kept in a fridge in a bag and far away from the cooling source will remain fresh for longer.
+=======
+## Experiment setups:
+
+* 40 Sprigs of cilantro, brought at once from Target, randomized and put into 8 sets, 5 sprigs per set.
+* Each set is either stored outside the mini-fridge, or in layer 1, 2, 3 of the fridge; and is either stored in a ziplock bag or not.
+* The weight of each set of sprig is measured in grams daily (thus, 8 measurements per day).
+* One image of each set is taken daily under as simmilar lighting conditions as possible. From the image we obtain metrics such as saturation, color, wiltedness score, texture score
+
+## Goal
+
+To study the effects of putting in ziplock bags and putting in a fridge on preserving cilantro's freshness
+>>>>>>> 312951dbbf771907375e95809245ec862c17f4c5
 
 # Methodology
 
@@ -48,6 +61,7 @@ For convience and budgetary concerns, we decided to use a group ate's mini-fridg
 
 ## Randomization Scheme
 
+<<<<<<< HEAD
 From our 40 cilantro stalks, we assigned a group of 5 cilantro stalks to one of eight treatment groups at random. The treatment plans for each of the eight groups is as follows:
 
 | Group | Location | Bagged |
@@ -89,5 +103,26 @@ Should pre-analysis plan specify response to common issues? (i.e. If my data has
 More versatile possiblity: using ranks, which works with F statistics.
 
 
+=======
+* Permutation test on whether different layers of the fridge (which presumably has different temperature mosture) has an effect on preserving freshness
+potentially pulling data from different layers together after this test.
+
+* Permutation test on whether putting in a ziplock bags has an effect toward freshness: test between 30 sprigs in the fridge.
+Use conditioning if data from 3 layers differ and could not be pulled together.
+
+* Permutation test on whether in fridge and out of fridge sprigs differ in freshness. E.g. normal permutation test between 20 out-of-ziplock-bag sprigs.
+
+## Model based Scheme
+
+* ANOVA: use an F test to test significant differences in means between different layers of the fridge.
+
+* Fits linear model (e.g. weight) as a function of time, use the slope as an indicator of weight loss speed
+
+# Preliminary Results
+>>>>>>> 312951dbbf771907375e95809245ec862c17f4c5
+
+* Conclusion on whether putting cilantro sprigs in different layers affect freshness
+* Conclusion on whether putting cilantro sprigs in the fridge helps perserving freshness
+* Conclusion on whether putting cilantro sprigs in ziplocks helps perserving freshness
 
 
