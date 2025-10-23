@@ -91,19 +91,41 @@ class HSVThresholdFinder:
     def create_mask(self, lower_bound, upper_bound):
         """Create binary mask based on HSV thresholds."""
         mask = cv2.inRange(self.hsv, lower_bound, upper_bound)
-
-        # Optional: Apply morphological operations to clean up the mask
-        # This removes small noise and fills small holes
-        kernel = np.ones((5, 5), np.uint8)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-
         return mask
 
     def apply_mask(self, mask):
         """Apply mask to original image to show segmented result."""
         result = cv2.bitwise_and(self.image, self.image, mask=mask)
         return result
+
+    def show_sprigs(self, mask):
+        """Show individual sprigs with contours and labels."""
+        # Find contours to identify individual sprigs
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Filter small noise
+        min_area = 100
+        contours = [c for c in contours if cv2.contourArea(c) >= min_area]
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
+
+        # Create image with labeled sprigs
+        sprigs_img = self.image.copy()
+        colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0),
+                  (255, 0, 255), (0, 255, 255), (128, 0, 128), (255, 128, 0)]
+
+        for idx, contour in enumerate(contours):
+            color = colors[idx % len(colors)]
+            # Draw contour outline
+            cv2.drawContours(sprigs_img, [contour], -1, color, 2)
+            # Add sprig number
+            M = cv2.moments(contour)
+            if M["m00"] != 0:
+                cx = int(M["m10"] / M["m00"])
+                cy = int(M["m01"] / M["m00"])
+                cv2.putText(sprigs_img, str(idx + 1), (cx, cy),
+                           cv2.FONT_HERSHEY_SIMPLEX, 1.0, color, 2)
+
+        return sprigs_img, len(contours)
 
     def save_thresholds(self):
         """Save current threshold values to a file."""
@@ -137,6 +159,7 @@ class HSVThresholdFinder:
         print("  2. HSV - HSV color space representation")
         print("  3. Mask - Binary mask (white = cilantro, black = background)")
         print("  4. Result - Segmented cilantro with background removed")
+        print("  5. Sprigs - Individual sprigs detected and labeled")
         print("="*60 + "\n")
 
         # Create trackbars
@@ -151,12 +174,14 @@ class HSVThresholdFinder:
             # Create mask and result
             mask = self.create_mask(lower_bound, upper_bound)
             result = self.apply_mask(mask)
+            sprigs_img, num_sprigs = self.show_sprigs(mask)
 
             # Display all windows
             cv2.imshow("1. Original", self.image)
             cv2.imshow("2. HSV", self.hsv)
             cv2.imshow("3. Mask", mask)
             cv2.imshow("4. Result (Segmented)", result)
+            cv2.imshow(f"5. Sprigs ({num_sprigs} detected)", sprigs_img)
 
             # Handle key presses
             key = cv2.waitKey(1) & 0xFF

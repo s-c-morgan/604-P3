@@ -208,11 +208,6 @@ Use the CSV or console table to compare:
 - **Saturation (S)**: 0-255 (0-100% mapped to 0-255)
 - **Value (V)**: 0-255 (brightness)
 
-### Morphological Operations
-- **MORPH_CLOSE**: Fills small holes
-- **MORPH_OPEN**: Removes noise/speckles
-- Results in cleaner segmentation
-
 ## License
 
 Open source for educational and research purposes.

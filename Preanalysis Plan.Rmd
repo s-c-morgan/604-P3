@@ -7,7 +7,6 @@ output: pdf_document
 
 # Introduction
 
-<<<<<<< HEAD
 In this project, we attempt to analyze various procedures for preserving the freshness of cilantro. Namely, we will attempt to measure if the following have any effect:
 
 \begin{itemize}
@@ -17,24 +16,12 @@ In this project, we attempt to analyze various procedures for preserving the fre
 \end{itemize}
 
 We hypothesize that cilantro kept in a fridge in a bag and far away from the cooling source will remain fresh for longer.
-=======
-## Experiment setups:
-
-* 40 Sprigs of cilantro, brought at once from Target, randomized and put into 8 sets, 5 sprigs per set.
-* Each set is either stored outside the mini-fridge, or in layer 1, 2, 3 of the fridge; and is either stored in a ziplock bag or not.
-* The weight of each set of sprig is measured in grams daily (thus, 8 measurements per day).
-* One image of each set is taken daily under as simmilar lighting conditions as possible. From the image we obtain metrics such as saturation, color, wiltedness score, texture score
-
-## Goal
-
-To study the effects of putting in ziplock bags and putting in a fridge on preserving cilantro's freshness
->>>>>>> 312951dbbf771907375e95809245ec862c17f4c5
 
 # Methodology
 
 ## Experimental setup
 
-For convience and budgetary concerns, we decided to use a group ate's mini-fridge to study the effect
+For convenience and budgetary concerns, we decided to use a group mate's mini-fridge to apply the treatment. A diagram of this mini-fridge is shown below:
 
 \begin{center}
 \begin{tabular}{|c|}
@@ -61,7 +48,6 @@ For convience and budgetary concerns, we decided to use a group ate's mini-fridg
 
 ## Randomization Scheme
 
-<<<<<<< HEAD
 From our 40 cilantro stalks, we assigned a group of 5 cilantro stalks to one of eight treatment groups at random. The treatment plans for each of the eight groups is as follows:
 
 | Group | Location | Bagged |
@@ -75,10 +61,33 @@ From our 40 cilantro stalks, we assigned a group of 5 cilantro stalks to one of 
 | 7 | Fridge shelf 3 | No |
 | 8 | Fridge shelf 3 | Yes |
 
+## Data Collection
 
+The weight of each set of sprigs is measured in grams daily (thus, 8 measurements per day) using an AmazonBasic scale with dubious precision. One image of each set is taken daily under as similar lighting conditions as possible using the same smart phone camera.
+
+## Data processing
+
+To quantify cilantro freshness from daily images, we use computer vision techniques with HSV (Hue, Saturation, Value) color space analysis. Each image is converted from RGB to HSV color space, which separates color information (hue) from intensity and lighting effects. We apply a calibrated HSV threshold mask (H: 35-85, S: 40-255, V: 40-255) to segment cilantro pixels from the background, producing a binary segmentation.
+
+After segmentation, we use contour detection to identify exactly 5 sprigs per image. Contours are identified using the RETR_EXTERNAL method, which finds outer boundaries of connected regions. To ensure we detect exactly 5 sprigs, we use an adaptive threshold approach: starting with a minimum area threshold of 10,000 pixels, we iteratively relax this threshold (reducing by 30% each iteration) until at least 5 contours are detected. Once found, the 5 largest contours are selected and assigned unique identifiers (1-5). This approach ensures consistent sprig counts across images while prioritizing the largest, most prominent sprigs in each image.
+
+From each individual sprig, we extract the following metrics as indicators of freshness:
+
+- **Mean Hue**: Average green color (0-179 scale); shifts indicate color change from fresh green to yellow/brown
+- **Mean Saturation**: Color intensity (0-255 scale); decreases indicate loss of vibrancy as cilantro wilts
+- **Mean Value**: Brightness level (0-255 scale); changes indicate darkening or drying
+
+These HSV-based metrics provide objective, quantitative measures of cilantro freshness that can be tracked over time for each individual sprig and compared across treatment conditions. By selecting exactly 5 sprigs per image, we ensure consistent sample sizes across all treatment groups and time points, enabling balanced statistical comparisons.
+
+Figure 1 illustrates the HSV segmentation and sprig identification process applied to a sample cilantro image. The original image (left) is converted to HSV color space and thresholded to create a binary mask (center), where white pixels represent detected cilantro and black pixels represent background. The adaptive contour detection algorithm then identifies the 5 largest sprigs (right), with each sprig outlined in a different color and labeled with a unique identifier (1-5). HSV statistics are calculated separately for each of the 5 selected sprigs.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.9\textwidth]{images/segmentation_example.jpg}
+\caption{HSV segmentation and sprig identification pipeline showing: (left) original cilantro image, (center) binary mask from HSV thresholding, and (right) the 5 largest sprigs identified via adaptive contour detection, each outlined in a distinct color and labeled with a unique identifier (1-5) for per-sprig tracking.}
+\end{figure}
 
 # Testing Procedure
-
 
 Things to test:
 
@@ -88,41 +97,37 @@ Things to test:
 - Compute F statistic, permutation test on F statistic for the three levels
   - Sensitive to outliers
 
-Possible issue: when we weigh cilantros collectively, we can't really apply a permutation test.
-So do we continue to use weight as a metric?
+Possible issue: when we weigh cilantros collectively, we can't really apply a permutation test. So do we continue to use weight as a metric?
 
 If no significance found, pool the fridge samples
 
 2. Fridge versus outside
 
 3. Out of bag vs in-bag
-  -If Test 1 was significant, there is some necessary stratification.
-  
+  - If Test 1 was significant, there is some necessary stratification.
+
 Should pre-analysis plan specify response to common issues? (i.e. If my data has a long tail, should I pre-specify that I plan to use medians. A: yes)
 
 More versatile possiblity: using ranks, which works with F statistics.
 
+## Permutation Test Approach
 
-=======
-* Permutation test on whether different layers of the fridge (which presumably has different temperature mosture) has an effect on preserving freshness
-potentially pulling data from different layers together after this test.
+- Permutation test on whether different layers of the fridge (which presumably has different temperature moisture) has an effect on preserving freshness, potentially pulling data from different layers together after this test.
 
-* Permutation test on whether putting in a ziplock bags has an effect toward freshness: test between 30 sprigs in the fridge.
-Use conditioning if data from 3 layers differ and could not be pulled together.
+- Permutation test on whether putting in a ziplock bag has an effect toward freshness: test between 30 sprigs in the fridge. Use conditioning if data from 3 layers differ and could not be pulled together.
 
-* Permutation test on whether in fridge and out of fridge sprigs differ in freshness. E.g. normal permutation test between 20 out-of-ziplock-bag sprigs.
+- Permutation test on whether in fridge and out of fridge sprigs differ in freshness. E.g. normal permutation test between 20 out-of-ziplock-bag sprigs.
 
-## Model based Scheme
+## Model Based Scheme
 
-* ANOVA: use an F test to test significant differences in means between different layers of the fridge.
+- ANOVA: use an F test to test significant differences in means between different layers of the fridge.
 
-* Fits linear model (e.g. weight) as a function of time, use the slope as an indicator of weight loss speed
+- Fits linear model (e.g. weight) as a function of time, use the slope as an indicator of weight loss speed.
 
 # Preliminary Results
->>>>>>> 312951dbbf771907375e95809245ec862c17f4c5
 
-* Conclusion on whether putting cilantro sprigs in different layers affect freshness
-* Conclusion on whether putting cilantro sprigs in the fridge helps perserving freshness
-* Conclusion on whether putting cilantro sprigs in ziplocks helps perserving freshness
+- Conclusion on whether putting cilantro sprigs in different layers affect freshness
+- Conclusion on whether putting cilantro sprigs in the fridge helps preserving freshness
+- Conclusion on whether putting cilantro sprigs in ziplocks helps preserving freshness
 
 
