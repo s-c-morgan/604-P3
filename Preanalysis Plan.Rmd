@@ -96,19 +96,21 @@ Following the data processing, we will have a time-series dataset where each of 
 To test the main effects and their interaction, we will build a regression model. The model is as below:
 
 $$Y =\beta_1\times Location + \beta_2\times Bag + \beta_3\times Location:Bag$$
-Here $Y$ is the above metric as indicators of freshness. And both Location and Bag are factor variables. From the summary of the model, we can get a view of whether the two variables and their interaction influences the freshness. Firt, we test the Location:Bag interaction term. If p<0.05, we will conclude that the effect of bagging depends on the location. We will then proceed to use log-rank tests to compare "In Bag" vs. "Out of Bag" within each location separately to analyze the effects. If p>0.05, we will conclude the effects are independent. We will remove the interaction term and use the simpler model:
+Here $Y$ is the above metric as indicators of freshness. And both Location and Bag are factor variables. From the summary of the model, we can get a view of whether the two variables and their interaction influences the freshness. First, we test the Location:Bag interaction term. If p<0.05, we will conclude that the effect of bagging depends on the location. We will then proceed to use log-rank tests to compare "In Bag" vs. "Out of Bag" within each location separately to analyze the effects. If p>0.05, we will conclude the effects are independent. We will remove the interaction term and use the simpler model:
 
 $$Y =  \beta_1\times Location +\beta_2\times Bag$$
 
-And the p-values for the Location and Bag terms will test our primary hypotheses.
+where the p-values for the Location and Bag terms will test our primary hypotheses.
 
 ## Permutation Test Approach
 
-- Permutation test on whether different layers of the fridge (which presumably has different temperature moisture) has an effect on preserving freshness, potentially pooling data from different layers together after this test.
+We will then conduct a series of permutation tests:
 
-- Permutation test on whether putting in a ziplock bag has an effect toward freshness: test between 30 sprigs in the fridge. Use conditioning if data from 3 layers differ and could not be pulled together.
+- A permutation test on whether different layers of the fridge (which presumably have different temperature and moisture) have different effects on preserving freshness. If so, we may choose to pool all data from the fridge together in subsequent tests. Explicitly, we will convert HSV values to ranks among all sprigs in the fridge and then compare the distribution of ranks. 
 
-- Permutation test on whether in fridge and out of fridge sprigs differ in freshness. E.g. normal permutation test between 20 out-of-ziplock-bag sprigs.
+- A permutation test on whether putting cilantro in a plastic bag has an effect toward freshness. This will be conducted on the 30 sprigs inside the fridge. We will use conditioning if data from 3 layers differ and could not be pooled together. This will also be done using a rank testing procedure.
+
+-  A permutation test on whether in fridge and out of fridge sprigs differ in freshness. The ranks will be recalculated for all 40 sprigs instead of the 30 sprigs as before, but the overall testing procedure will remain the same.
 
 ## Model Based Scheme
 
