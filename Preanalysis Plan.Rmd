@@ -92,16 +92,6 @@ Figure 1 illustrates the HSV segmentation and sprig identification process appli
 Following the data processing, we will have a time-series dataset where each of the 40 replicates has 3 individual sprig measurements. To visualize the decay of freshness over time, we will first generate a heat map where the Y-axis is the 8 different experimental conditions, the X-axis is Day, and the cell's color indicates the average Mean Saturation (or Mean Hue) for that condition on that day. This graph can provide a clear comparison of which conditions lose their freshness more rapidly. Following this, to compare different conditions, we will generate summary box plots of the Mean Saturation values. These box plots will be organized by our 8 experimental conditions every three days after the start of our experiment.
 
 
-## Regression Model
-To test the main effects and their interaction, we will build a regression model. The model is as below:
-
-$$Y =\beta_1\times Location + \beta_2\times Bag + \beta_3\times Location:Bag$$
-Here $Y$ is the above metric as indicators of freshness. And both Location and Bag are factor variables. From the summary of the model, we can get a view of whether the two variables and their interaction influences the freshness. First, we test the Location:Bag interaction term. If p<0.05, we will conclude that the effect of bagging depends on the location. We will then proceed to use log-rank tests to compare "In Bag" vs. "Out of Bag" within each location separately to analyze the effects. If p>0.05, we will conclude the effects are independent. We will remove the interaction term and use the simpler model:
-
-$$Y =  \beta_1\times Location +\beta_2\times Bag$$
-
-where the p-values for the Location and Bag terms will test our primary hypotheses.
-
 ## Permutation Test Approach
 
 We will then conduct a series of permutation tests:
@@ -114,9 +104,19 @@ We will then conduct a series of permutation tests:
 
 ## Model Based Scheme
 
-- ANOVA: use an F test to test significant differences in means between different layers of the fridge.
+### Regression Model
+First, to compare the decay speed in the different 8 conditions, we will fit 8 individual simple linear regression models.
 
-- Fit linear model (e.g. weight) as a function of time, use the slope as an indicator of weight loss speed.
+For each condition $i$, we will model its  Mean Saturation (or other selected metric) as a function of Day: 
+
+$$Mean~Saturation_i =\beta_{0i} + \beta_{1i}\times Day +\epsilon_i$$
+From each model $i$, we use the data during a week and extract the slope coefficient $\beta_{1i}$, which represents the rate of decay for each condition. A slope near zero indicates slow decay (high freshness), while a large negative slope indicates rapid freshness loss. We can get a overview on $\beta_{1i}$ of which condition keeps freshness better.
+
+### ANOVA on Slope
+Next, we will fit a Two-Way ANOVA to the 8 slope values:
+
+$$Slope ~ Location + Bag+ ( Location \times Bag ) $$
+We use the F-test in the above model, which represents the ratio of the variance explained by that factor to the residual variance. We will first test the interaction term of Location and Bag. Here the null hypothesis is that the effect of the bag on the slope is the same for all locations. The result of this F-test determines the following steps. If p<0.05, we conclude there is a significant interaction between the two factors. If the interaction is not significant, we can remove the interaction term and proceed to the simpler model. For the effect of Location, where the null hypothesis is that the mean slopes are equal across all four locations. If this F-test is significant, we can conclude that locations affect the freshness. Finally, we will test the main effect of Bag, where the null hypothesis is that the mean slopes are equal for the "In Bag" and "Out of Bag" conditions. If the F-test is significant, we can conclude that there is effect of bagging in keeping herbs fresh.
 
 
 
