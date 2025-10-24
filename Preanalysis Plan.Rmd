@@ -102,31 +102,9 @@ $$Y =  \beta_1\times Location +\beta_2\times Bag$$
 
 And the p-values for the Location and Bag terms will test our primary hypotheses.
 
-
-Things to test:
-
-1. Fridge layer versus each other
-
-- Compute mean of differences and compare
-- Compute F statistic, permutation test on F statistic for the three levels
-  - Sensitive to outliers
-
-Possible issue: when we weigh cilantros collectively, we can't really apply a permutation test. So do we continue to use weight as a metric?
-
-If no significance found, pool the fridge samples
-
-2. Fridge versus outside
-
-3. Out of bag vs in-bag
-  - If Test 1 was significant, there is some necessary stratification.
-
-Should pre-analysis plan specify response to common issues? (i.e. If my data has a long tail, should I pre-specify that I plan to use medians. A: yes)
-
-More versatile possiblity: using ranks, which works with F statistics.
-
 ## Permutation Test Approach
 
-- Permutation test on whether different layers of the fridge (which presumably has different temperature moisture) has an effect on preserving freshness, potentially pulling data from different layers together after this test.
+- Permutation test on whether different layers of the fridge (which presumably has different temperature moisture) has an effect on preserving freshness, potentially pooling data from different layers together after this test.
 
 - Permutation test on whether putting in a ziplock bag has an effect toward freshness: test between 30 sprigs in the fridge. Use conditioning if data from 3 layers differ and could not be pulled together.
 
@@ -136,12 +114,8 @@ More versatile possiblity: using ranks, which works with F statistics.
 
 - ANOVA: use an F test to test significant differences in means between different layers of the fridge.
 
-- Fits linear model (e.g. weight) as a function of time, use the slope as an indicator of weight loss speed.
+- Fit linear model (e.g. weight) as a function of time, use the slope as an indicator of weight loss speed.
 
-# Preliminary Results
 
-- Conclusion on whether putting cilantro sprigs in different layers affect freshness
-- Conclusion on whether putting cilantro sprigs in the fridge helps preserving freshness
-- Conclusion on whether putting cilantro sprigs in ziplocks helps preserving freshness
 
 
