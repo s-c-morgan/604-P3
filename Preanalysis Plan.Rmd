@@ -88,6 +88,21 @@ Figure 1 illustrates the HSV segmentation and sprig identification process appli
 
 # Testing Procedure
 
+## EDA
+Following the data processing, we will have a time-series dataset where each of the 40 replicates has 3 individual sprig measurements. To visualize the decay of freshness over time, we will first generate a heat map where the Y-axis is the 8 different experimental conditions, the X-axis is Day, and the cell's color indicates the average Mean Saturation (or Mean Hue) for that condition on that day. This graph can provide a clear comparison of which conditions lose their freshness more rapidly. Following this, to compare different conditions, we will generate summary box plots of the Mean Saturation values. These box plots will be organized by our 8 experimental conditions every three days after the start of our experiment.
+
+
+## Regression Model
+To test the main effects and their interaction, we will build a regression model. The model is as below:
+
+$$Y =\beta_1\times Location + \beta_2\times Bag + \beta_3\times Location:Bag$$
+Here $Y$ is the above metric as indicators of freshness. And both Location and Bag are factor variables. From the summary of the model, we can get a view of whether the two variables and their interaction influences the freshness. Firt, we test the Location:Bag interaction term. If p<0.05, we will conclude that the effect of bagging depends on the location. We will then proceed to use log-rank tests to compare "In Bag" vs. "Out of Bag" within each location separately to analyze the effects. If p>0.05, we will conclude the effects are independent. We will remove the interaction term and use the simpler model:
+
+$$Y =  \beta_1\times Location +\beta_2\times Bag$$
+
+And the p-values for the Location and Bag terms will test our primary hypotheses.
+
+
 Things to test:
 
 1. Fridge layer versus each other
