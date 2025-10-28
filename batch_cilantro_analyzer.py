@@ -2,7 +2,7 @@
 """
 Batch Cilantro Analyzer
 
-This script processes multiple cilantro images using the same HSV threshold mask
+This script processes multiple cilantro images using HSV thresholding
 and compiles their HSV statistics into a comparison table.
 
 Usage:
@@ -63,13 +63,13 @@ class BatchCilantroAnalyzer:
 
     def process_image(self, image_path):
         """
-        Process a single image and extract per-sprig HSV statistics.
+        Process a single image and extract HSV statistics from thresholded mask.
 
         Args:
             image_path: Path to the cilantro image
 
         Returns:
-            dict with per-sprig statistics, or None if processing failed
+            dict with HSV statistics, or None if processing failed
         """
         # Load the image
         image = cv2.imread(image_path)
@@ -80,111 +80,61 @@ class BatchCilantroAnalyzer:
         # Convert to HSV
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        # Create mask
+        # Create mask using thresholding
         mask = cv2.inRange(hsv, self.lower_bound, self.upper_bound)
 
-        # Find contours to identify individual sprigs
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # Get all pixels within the threshold
+        cilantro_pixels_hsv = hsv[mask == 255]
+        cilantro_pixels_bgr = image[mask == 255]
 
-        if len(contours) == 0:
+        if len(cilantro_pixels_hsv) == 0:
             print(f"  ⚠ No cilantro detected in: {os.path.basename(image_path)}")
             return {
                 'filename': os.path.basename(image_path),
-                'num_sprigs': 0,
-                'sprigs': [],
+                'area': 0,
+                'mean_hue': 0,
+                'std_hue': 0,
+                'mean_saturation': 0,
+                'std_saturation': 0,
+                'mean_value': 0,
+                'std_value': 0,
+                'mean_blue': 0,
+                'mean_green': 0,
+                'mean_red': 0,
+                'coverage_percent': 0,
                 'mask': mask,
-                'image': image,
-                'contours': []
+                'image': image
             }
 
-        # Iteratively relax min_area threshold until we find exactly 5 sprigs
-        min_area = 10000  # Start with large threshold
-        target_sprigs = 5
+        # Calculate statistics from all thresholded pixels
+        area = np.sum(mask == 255)
+        mean_hsv = np.mean(cilantro_pixels_hsv, axis=0)
+        std_hsv = np.std(cilantro_pixels_hsv, axis=0)
+        mean_bgr = np.mean(cilantro_pixels_bgr, axis=0)
 
-        while min_area >= 10:  # Don't go below 10 pixels
-            filtered_contours = [c for c in contours if cv2.contourArea(c) >= min_area]
-            filtered_contours = sorted(filtered_contours, key=cv2.contourArea, reverse=True)
-
-            if len(filtered_contours) >= target_sprigs:
-                # Found at least 5 sprigs, take the largest 5
-                contours = filtered_contours[:target_sprigs]
-                break
-            elif len(filtered_contours) > 0 and min_area <= 100:
-                # If we're below 100 pixels and have some contours, use what we have
-                contours = filtered_contours
-                break
-
-            # Reduce threshold and try again
-            min_area = int(min_area * 0.7)  # Reduce by 30% each iteration
-
-        # Final fallback: just take the largest contours available
-        if len(contours) == 0:
-            contours = sorted(contours, key=cv2.contourArea, reverse=True)[:target_sprigs]
-
-        # Process each sprig
-        sprig_stats = []
-        for idx, contour in enumerate(contours):
-            # Create mask for this sprig only
-            sprig_mask = np.zeros_like(mask)
-            cv2.drawContours(sprig_mask, [contour], -1, 255, -1)
-
-            # Get pixels for this sprig
-            sprig_pixels_hsv = hsv[sprig_mask == 255]
-            sprig_pixels_bgr = image[sprig_mask == 255]
-
-            if len(sprig_pixels_hsv) == 0:
-                continue
-
-            # Calculate statistics for this sprig
-            area = cv2.contourArea(contour)
-            mean_hsv = np.mean(sprig_pixels_hsv, axis=0)
-            std_hsv = np.std(sprig_pixels_hsv, axis=0)
-            mean_bgr = np.mean(sprig_pixels_bgr, axis=0)
-
-            # Get bounding box
-            x, y, w, h = cv2.boundingRect(contour)
-
-            sprig_stats.append({
-                'sprig_id': idx + 1,
-                'area': int(area),
-                'mean_hue': float(mean_hsv[0]),
-                'std_hue': float(std_hsv[0]),
-                'mean_saturation': float(mean_hsv[1]),
-                'std_saturation': float(std_hsv[1]),
-                'mean_value': float(mean_hsv[2]),
-                'std_value': float(std_hsv[2]),
-                'mean_blue': float(mean_bgr[0]),
-                'mean_green': float(mean_bgr[1]),
-                'mean_red': float(mean_bgr[2]),
-                'bbox_x': x,
-                'bbox_y': y,
-                'bbox_width': w,
-                'bbox_height': h
-            })
-
-        total_area = sum(s['area'] for s in sprig_stats)
         total_pixels = image.shape[0] * image.shape[1]
-        coverage = (total_area / total_pixels) * 100
+        coverage = (area / total_pixels) * 100
 
         # Report status
-        if len(sprig_stats) < 5:
-            print(f"  ⚠ Only {len(sprig_stats)} sprigs found in: {os.path.basename(image_path)}")
-        elif len(sprig_stats) == 5:
-            print(f"  ✓ Processed: {os.path.basename(image_path)} (5 sprigs, {total_area:,} pixels, {coverage:.2f}% coverage)")
-        else:
-            print(f"  ✓ Processed: {os.path.basename(image_path)} ({len(sprig_stats)} sprigs, {total_area:,} pixels, {coverage:.2f}% coverage)")
+        print(f"  ✓ Processed: {os.path.basename(image_path)} ({area:,} pixels, {coverage:.2f}% coverage)")
 
         return {
             'filename': os.path.basename(image_path),
-            'num_sprigs': len(sprig_stats),
-            'total_area': total_area,
+            'area': int(area),
+            'mean_hue': float(mean_hsv[0]),
+            'std_hue': float(std_hsv[0]),
+            'mean_saturation': float(mean_hsv[1]),
+            'std_saturation': float(std_hsv[1]),
+            'mean_value': float(mean_hsv[2]),
+            'std_value': float(std_hsv[2]),
+            'mean_blue': float(mean_bgr[0]),
+            'mean_green': float(mean_bgr[1]),
+            'mean_red': float(mean_bgr[2]),
             'coverage_percent': coverage,
-            'sprigs': sprig_stats,
             'image_width': image.shape[1],
             'image_height': image.shape[0],
             'mask': mask,
-            'image': image,
-            'contours': contours
+            'image': image
         }
 
     def process_directory(self, directory, save_masks=False):
@@ -230,39 +180,21 @@ class BatchCilantroAnalyzer:
 
     def save_mask_visualization(self, result, output_dir):
         """
-        Save a visualization showing original, mask, and individual sprigs.
+        Save a visualization showing original, mask, and thresholded result.
 
         Args:
             result: Result dictionary from process_image
             output_dir: Directory to save visualization
         """
-        if result['num_sprigs'] == 0:
+        if result['area'] == 0:
             return  # Skip if no cilantro detected
 
         image = result['image']
         mask = result['mask']
-        contours = result['contours']
         filename = result['filename']
 
-        # Create segmented result
+        # Create segmented result (apply mask to original image)
         segmented = cv2.bitwise_and(image, image, mask=mask)
-
-        # Create image with numbered sprigs
-        sprigs_labeled = image.copy()
-        colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0),
-                  (255, 0, 255), (0, 255, 255), (128, 0, 128), (255, 128, 0)]
-
-        for idx, contour in enumerate(contours):
-            color = colors[idx % len(colors)]
-            # Draw contour outline
-            cv2.drawContours(sprigs_labeled, [contour], -1, color, 3)
-            # Add sprig number
-            M = cv2.moments(contour)
-            if M["m00"] != 0:
-                cx = int(M["m10"] / M["m00"])
-                cy = int(M["m01"] / M["m00"])
-                cv2.putText(sprigs_labeled, str(idx + 1), (cx, cy),
-                           cv2.FONT_HERSHEY_SIMPLEX, 1.5, color, 3)
 
         # Resize for display (max width 400px each)
         h, w = image.shape[:2]
@@ -272,26 +204,26 @@ class BatchCilantroAnalyzer:
         original = cv2.resize(image, (display_width, display_height))
         mask_vis = cv2.resize(mask, (display_width, display_height))
         mask_vis = cv2.cvtColor(mask_vis, cv2.COLOR_GRAY2BGR)
-        sprigs_labeled = cv2.resize(sprigs_labeled, (display_width, display_height))
+        segmented_vis = cv2.resize(segmented, (display_width, display_height))
 
         # Stack horizontally
-        visualization = np.hstack([original, mask_vis, sprigs_labeled])
+        visualization = np.hstack([original, mask_vis, segmented_vis])
 
         # Add labels
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(visualization, "Original", (10, 30), font, 0.7, (255, 255, 255), 2)
-        cv2.putText(visualization, "Mask", (display_width + 10, 30), font, 0.7, (255, 255, 255), 2)
-        cv2.putText(visualization, f"Sprigs ({result['num_sprigs']})", (display_width * 2 + 10, 30), font, 0.7, (255, 255, 255), 2)
+        cv2.putText(visualization, "Binary Mask", (display_width + 10, 30), font, 0.7, (255, 255, 255), 2)
+        cv2.putText(visualization, "Thresholded", (display_width * 2 + 10, 30), font, 0.7, (255, 255, 255), 2)
 
         # Save
-        output_filename = os.path.splitext(filename)[0] + "_sprigs.jpg"
+        output_filename = os.path.splitext(filename)[0] + "_threshold.jpg"
         output_path = os.path.join(output_dir, output_filename)
         cv2.imwrite(output_path, visualization)
         print(f"    Saved visualization: {output_filename}")
 
     def save_to_csv(self, output_file):
         """
-        Save per-sprig results to a CSV file.
+        Save results to a CSV file.
 
         Args:
             output_file: Path to output CSV file
@@ -300,11 +232,11 @@ class BatchCilantroAnalyzer:
             print("\n✗ No results to save!")
             return
 
-        # Define CSV columns for per-sprig data
+        # Define CSV columns - only summary statistics
         fieldnames = [
             'filename',
-            'sprig_id',
-            'area',
+            'day',
+            'group',
             'mean_hue',
             'std_hue',
             'mean_saturation',
@@ -313,61 +245,73 @@ class BatchCilantroAnalyzer:
             'std_value',
             'mean_blue',
             'mean_green',
-            'mean_red',
-            'bbox_x',
-            'bbox_y',
-            'bbox_width',
-            'bbox_height'
+            'mean_red'
         ]
 
-        # Write CSV with one row per sprig
+        # Write CSV with one row per image
         with open(output_file, 'w', newline='') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
 
             for result in self.results:
+                row = {k: result[k] for k in fieldnames if k in result}
+
+                # Extract day and group from filename (e.g., "Day0_Group_1.jpg")
                 filename = result['filename']
-                for sprig in result['sprigs']:
-                    row = {'filename': filename}
-                    row.update(sprig)
-                    writer.writerow(row)
+                if 'Day' in filename and 'Group' in filename:
+                    try:
+                        # Extract day number
+                        day_part = filename.split('_')[0]  # "Day0"
+                        day = int(day_part.replace('Day', ''))
+
+                        # Extract group number
+                        group_part = filename.split('_')[2]  # "1.jpg"
+                        group = int(group_part.replace('.jpg', '').replace('.jpeg', '').replace('.png', ''))
+
+                        row['day'] = day
+                        row['group'] = group
+                    except (ValueError, IndexError):
+                        row['day'] = None
+                        row['group'] = None
+                else:
+                    row['day'] = None
+                    row['group'] = None
+
+                writer.writerow(row)
 
         print(f"\n✓ Results saved to: {output_file}")
 
     def print_summary_table(self):
-        """Print a per-sprig summary table to console."""
+        """Print a summary table to console."""
         if not self.results:
             print("\n✗ No results to display!")
             return
 
-        print("\n" + "="*140)
-        print("CILANTRO PER-SPRIG HSV STATISTICS SUMMARY")
-        print("="*140)
+        print("\n" + "="*120)
+        print("CILANTRO HSV STATISTICS SUMMARY")
+        print("="*120)
         print(f"HSV Thresholds: {self.lower_bound} to {self.upper_bound}")
         print(f"Total images processed: {len(self.results)}")
-        total_sprigs = sum(r['num_sprigs'] for r in self.results)
-        print(f"Total sprigs detected: {total_sprigs}")
-        print("="*140)
+        print("="*120)
 
         # Print header
-        print(f"\n{'Filename':<30} {'Sprig':>6} {'Area':>8} {'H (μ)':>8} {'H (σ)':>8} {'S (μ)':>8} {'S (σ)':>8} {'V (μ)':>8} {'V (σ)':>8}")
-        print("-"*140)
+        print(f"\n{'Filename':<30} {'Area':>10} {'Coverage':>10} {'H (μ)':>8} {'H (σ)':>8} {'S (μ)':>8} {'S (σ)':>8} {'V (μ)':>8} {'V (σ)':>8}")
+        print("-"*120)
 
         # Print each result
         for result in self.results:
-            if result['num_sprigs'] == 0:
-                print(f"{result['filename']:<30} {'N/A':>6} {'N/A':>8} {'N/A':>8} {'N/A':>8} {'N/A':>8} {'N/A':>8} {'N/A':>8} {'N/A':>8}")
+            if result['area'] == 0:
+                print(f"{result['filename']:<30} {'N/A':>10} {'N/A':>10} {'N/A':>8} {'N/A':>8} {'N/A':>8} {'N/A':>8} {'N/A':>8} {'N/A':>8}")
             else:
-                for sprig in result['sprigs']:
-                    print(f"{result['filename']:<30} {sprig['sprig_id']:>6} {sprig['area']:>8,} "
-                          f"{sprig['mean_hue']:>8.1f} {sprig['std_hue']:>8.1f} "
-                          f"{sprig['mean_saturation']:>8.1f} {sprig['std_saturation']:>8.1f} "
-                          f"{sprig['mean_value']:>8.1f} {sprig['std_value']:>8.1f}")
+                print(f"{result['filename']:<30} {result['area']:>10,} {result['coverage_percent']:>9.2f}% "
+                      f"{result['mean_hue']:>8.1f} {result['std_hue']:>8.1f} "
+                      f"{result['mean_saturation']:>8.1f} {result['std_saturation']:>8.1f} "
+                      f"{result['mean_value']:>8.1f} {result['std_value']:>8.1f}")
 
-        print("="*140)
+        print("="*120)
         print("\nLegend:")
-        print("  Sprig = Sprig ID (sorted by size, largest first)")
-        print("  Area = Pixel count for this sprig")
+        print("  Area = Total pixel count within threshold")
+        print("  Coverage = Percentage of image within threshold")
         print("  H (μ) = Mean Hue (0-179)")
         print("  H (σ) = Std Dev Hue")
         print("  S (μ) = Mean Saturation (0-255)")
