@@ -237,6 +237,8 @@ class BatchCilantroAnalyzer:
             'filename',
             'day',
             'group',
+            'bagged',
+            'fridge_layer',
             'mean_hue',
             'std_hue',
             'mean_saturation',
@@ -270,12 +272,38 @@ class BatchCilantroAnalyzer:
 
                         row['day'] = day
                         row['group'] = group
+
+                        # Map group to bagged status and fridge layer
+                        # Group 1: OOF unbagged, Group 2: OOF bagged
+                        # Groups 3-8: in fridge with alternating bagged/unbagged at different layers
+                        group_mapping = {
+                            1: {'bagged': 'no', 'fridge_layer': 'OOF'},
+                            2: {'bagged': 'yes', 'fridge_layer': 'OOF'},
+                            3: {'bagged': 'no', 'fridge_layer': 'top'},
+                            4: {'bagged': 'yes', 'fridge_layer': 'top'},
+                            5: {'bagged': 'no', 'fridge_layer': 'middle'},
+                            6: {'bagged': 'yes', 'fridge_layer': 'middle'},
+                            7: {'bagged': 'no', 'fridge_layer': 'bottom'},
+                            8: {'bagged': 'yes', 'fridge_layer': 'bottom'}
+                        }
+
+                        if group in group_mapping:
+                            row['bagged'] = group_mapping[group]['bagged']
+                            row['fridge_layer'] = group_mapping[group]['fridge_layer']
+                        else:
+                            row['bagged'] = None
+                            row['fridge_layer'] = None
+
                     except (ValueError, IndexError):
                         row['day'] = None
                         row['group'] = None
+                        row['bagged'] = None
+                        row['fridge_layer'] = None
                 else:
                     row['day'] = None
                     row['group'] = None
+                    row['bagged'] = None
+                    row['fridge_layer'] = None
 
                 writer.writerow(row)
 
