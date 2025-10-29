@@ -7,7 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Read the CSV data
-df = pd.read_csv('cilantro_hsv_stats.csv')
+df = pd.read_csv('data/cilantro_stats.csv')
 
 # Create the plot
 plt.figure(figsize=(12, 6))
@@ -26,8 +26,8 @@ plt.grid(True, alpha=0.3)
 plt.tight_layout()
 
 # Save the plot
-plt.savefig('mean_green_by_group.png', dpi=300, bbox_inches='tight')
-print("✓ Plot saved to: mean_green_by_group.png")
+plt.savefig('plots/mean_green_by_group.png', dpi=300, bbox_inches='tight')
+print("✓ Plot saved to: plots/mean_green_by_group.png")
 
 # Show the plot
 plt.show()
