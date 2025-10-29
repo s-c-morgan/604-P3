@@ -38,9 +38,9 @@ from datetime import datetime
 # CONFIGURATION: Update these values from hsv_threshold_finder.py
 # ==============================================================================
 
-# Default HSV thresholds (adjusted for darker/wilted cilantro)
+# Default HSV thresholds (adjusted for very dark/aged cilantro)
 # OpenCV uses: H: 0-179, S: 0-255, V: 0-255
-LOWER_GREEN = np.array([35, 30, 20])   # [H_min, S_min, V_min] - Lower thresholds for darker colors
+LOWER_GREEN = np.array([35, 20, 10])   # [H_min, S_min, V_min] - Much lower thresholds for very dark colors
 UPPER_GREEN = np.array([85, 255, 255]) # [H_max, S_max, V_max]
 
 # ==============================================================================
