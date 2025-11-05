@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 
-def generate_plots_img_feature_by_group(criteria=['green', 'saturation', 'hue'], window=0):
+def generate_plots_img_feature_by_group(criteria=['green', 'saturation', 'value', 'hue'], window=0):
 
     # Read the CSV data
     df = pd.read_csv('data/cilantro_stats.csv')
@@ -76,7 +76,6 @@ def generate_plot_weight_by_group(window=0):
                     label=f'Layer {layer} '+('in bag' if in_bag else 'out bag'), linewidth=2)
         else:
             temp = [np.sum(np.array(group_data[f'weight'][i:i+window]))/window+0.05*layer for i in range(len(list(group_data['day']))-window+1)]
-            if group_data['weight'].isna().any(): print(temp, group_data[f'weight'])
             plt.plot(list(group_data['day'])[window-1:], temp, \
                     markers[in_bag], color=colors[layer], \
                     label=f'Layer {layer} '+('in bag' if in_bag else 'out bag'), linewidth=2)

@@ -7,9 +7,7 @@ from utils import calculate_delta
 df_colors = pd.read_csv('data/cilantro_stats.csv')
 df_weights = pd.read_csv('data/weights.csv')
 
-SAT = 'mean_saturation'
-HUE = 'mean_hue'
-criteria = ['saturation', 'hue', 'green']
+criteria = ['saturation', 'hue', 'value', 'green']
 
 def plot_difference_bagvsnot_img_feature(criteria=criteria):
     '''
@@ -20,7 +18,7 @@ def plot_difference_bagvsnot_img_feature(criteria=criteria):
     ----------
     criteria :  str or list[str]
         features to be plotted.
-        Must be an element or a sub-list of ['saturation', 'hue', 'green']
+        Must be an element or a sub-list of ['saturation', 'hue', 'value', 'green']
     '''
     if type(criteria) == str: criteria = [criteria]
 
@@ -56,9 +54,10 @@ def bagvsnot_test_img_feature(criteria=criteria):
     ----------
     criteria :  str or list[str]
         features to be plotted.
-        Must be an element or a sub-list of ['saturation', 'hue', 'green']
+        Must be an element or a sub-list of ['saturation', 'hue', 'value', 'green']
     '''
     if type(criteria) == str: criteria = [criteria]
+    final_output = dict()
     for criterion in criteria:
 
         # Get differential data
@@ -82,8 +81,10 @@ def bagvsnot_test_img_feature(criteria=criteria):
         plt.savefig(f'plots/mean_dif_test_{criterion}_baggedvsnot.png', bbox_inches='tight')
         plt.close()
 
-        # Returns
-        return (output["p_value"], p_val_anova)
+        # Save for return
+        final_output[criterion] = (output["p_value"], p_val_anova)
+
+    return final_output
 
 def plot_difference_bagvsnot_weight():
     '''
@@ -147,5 +148,3 @@ if __name__ == '__main__':
     bagvsnot_test_img_feature()
     plot_difference_bagvsnot_weight()
     bagvsnot_test_weight()
-
-

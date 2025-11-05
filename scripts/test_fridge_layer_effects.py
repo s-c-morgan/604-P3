@@ -7,9 +7,7 @@ from utils import calculate_delta
 df_colors = pd.read_csv('data/cilantro_stats.csv')
 df_weights = pd.read_csv('data/weights.csv')
 
-SAT = 'mean_saturation'
-HUE = 'mean_hue'
-criteria = ['saturation', 'hue', 'green']
+criteria = ['saturation', 'hue', 'value', 'green']
 
 def layer_difference_test_img_feature(criteria=criteria):
     if type(criteria) == str: criteria = [criteria]
