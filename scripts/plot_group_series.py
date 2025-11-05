@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 
-def generate_plots_img_feature_by_group(criteria=['green', 'saturation', 'value', 'hue'], window=0):
+def generate_plots_img_feature_by_group(criteria=['green', 'saturation', 'value', 'hue'], window=0, save_dir='plots'):
 
     # Read the CSV data
     df = pd.read_csv('data/cilantro_stats.csv')
@@ -45,14 +45,16 @@ def generate_plots_img_feature_by_group(criteria=['green', 'saturation', 'value'
             plt.legend(title='Group', bbox_to_anchor=(1.05, 1), loc='upper left')
             plt.grid(True, alpha=0.3)
             plt.tight_layout()
+            if save_dir is None: plt.show()
 
         # Save the plot
-        window_name = f'_winsize{window}' if window > 1 else ''
-        plt.savefig(f'plots/plot_mean_{criterion}_by_group{window_name}.png', dpi=300, bbox_inches='tight')
-        print(f'Plot saved to: plots/plot_mean_{criterion}_by_group{window_name}.png')
+        if save_dir is not None:
+            window_name = f'_winsize{window}' if window > 1 else ''
+            plt.savefig(f'{save_dir}/plot_mean_{criterion}_by_group{window_name}.png', dpi=300, bbox_inches='tight')
+            print(f'Plot saved to: {save_dir}/plot_mean_{criterion}_by_group{window_name}.png')
         plt.close()
 
-def generate_plot_weight_by_group(window=0):
+def generate_plot_weight_by_group(window=0, save_dir='plots'):
 
     # Read the CSV data
     df = pd.read_csv('data/weights.csv')
@@ -90,8 +92,8 @@ def generate_plot_weight_by_group(window=0):
 
     # Save the plot
     window_name = f'_winsize{window}' if window > 1 else ''
-    plt.savefig(f'plots/plot_weight_by_group{window_name}.png', dpi=300, bbox_inches='tight')
-    print(f'Plot saved to: plots/plot_weight_by_group{window_name}.png')
+    plt.savefig(f'{save_dir}/plot_weight_by_group{window_name}.png', dpi=300, bbox_inches='tight')
+    print(f'Plot saved to: {save_dir}/plot_weight_by_group{window_name}.png')
     plt.close()
 
 if __name__ == '__main__':
