@@ -4,12 +4,9 @@ from matplotlib import pyplot as plt
 from testing_functions import maximal_mean_dif_perm_test, binary_perm_mean_test_blocking, f_test
 from utils import calculate_delta
 
-df_colors = pd.read_csv('data/cilantro_stats.csv')
-df_weights = pd.read_csv('data/weights.csv')
+CRITERIA = ['saturation', 'hue', 'value', 'green']
 
-criteria = ['saturation', 'hue', 'value', 'green']
-
-def plot_difference_bagvsnot_img_feature(criteria=criteria, save_dir='plots'):
+def plot_difference_bagvsnot_img_feature(criteria=CRITERIA, df_colors=None, save_dir='plots'):
     '''
     Plot the histogram of daily differences in image features for in-fridge groups
     colored by bagged vs unbagged data
@@ -20,11 +17,16 @@ def plot_difference_bagvsnot_img_feature(criteria=criteria, save_dir='plots'):
         features to be plotted.
         Must be an element or a sub-list of ['saturation', 'hue', 'value', 'green']
 
+    df_colors : pandas.DataFrame (default None)
+        image feature data in case of preload.
+        If not, load image feature data and save in this variable.
+
     save_dir : Optional(str)
         directory to save data (default to be 'plots')
         if is None, instead of saving, show the image.
     '''
     if type(criteria) == str: criteria = [criteria]
+    if df_colors is None: df_colors = pd.read_csv('data/cilantro_stats.csv')
 
     for criterion in criteria:
 
@@ -49,7 +51,7 @@ def plot_difference_bagvsnot_img_feature(criteria=criteria, save_dir='plots'):
         else: plt.show()
         plt.close()
 
-def bagvsnot_test_img_feature(criteria=criteria, save_dir='plots'):
+def bagvsnot_test_img_feature(criteria=CRITERIA, df_colors=None, save_dir='plots'):
     '''
     Test the daily differences in image features for all in-fridge groups
     constrasting bagged and un-bagged groups
@@ -61,10 +63,15 @@ def bagvsnot_test_img_feature(criteria=criteria, save_dir='plots'):
         features to be plotted.
         Must be an element or a sub-list of ['saturation', 'hue', 'value', 'green']
 
+    df_colors : pandas.DataFrame (default None)
+        image feature data in case of preload.
+        If not, load image feature data and save in this variable.
+
     save_dir : Optional(str)
         directory to save data (default to be 'plots')
         if is None, instead of saving, show the image.
     '''
+    if df_colors is None: df_colors = pd.read_csv('data/cilantro_stats.csv')
     if type(criteria) == str: criteria = [criteria]
     final_output = dict()
     for criterion in criteria:
@@ -96,17 +103,23 @@ def bagvsnot_test_img_feature(criteria=criteria, save_dir='plots'):
 
     return final_output
 
-def plot_difference_bagvsnot_weight(save_dir='plots'):
+def plot_difference_bagvsnot_weight(df_weights=None, save_dir='plots'):
     '''
     Plot the histogram of daily differences in weights for in-fridge groups 
     colored by bagged vs unbagged data
 
     Parameters
     ----------
+    df_weights : pandas.DataFrame (default None)
+        weight data in case of preload.
+        If not, load image feature data and save in this variable.
+
     save_dir : Optional(str)
         directory to save data (default to be 'plots')
         if is None, instead of saving, show the image.
     '''
+    # Load data
+    if df_weights is None: df_weights = pd.read_csv('data/weights.csv')
 
     # Get differential data
     df_weights_dif = df_weights[['fridge_layer', 'bagged', 'day', 'weight']]
@@ -129,7 +142,7 @@ def plot_difference_bagvsnot_weight(save_dir='plots'):
     else: plt.show()
     plt.close()
 
-def bagvsnot_test_weight(save_dir='plots'):
+def bagvsnot_test_weight(df_weights=None, save_dir='plots'):
     '''
     Test the daily differences in weights for all in-fridge groups
     constrasting bagged and un-bagged groups
@@ -137,10 +150,17 @@ def bagvsnot_test_weight(save_dir='plots'):
 
     Parameters
     ----------
+    df_weights : pandas.DataFrame (default None)
+        weight data in case of preload.
+        If not, load image feature data and save in this variable.
+
     save_dir : Optional(str)
         directory to save data (default to be 'plots')
         if is None, instead of saving, show the image.
     '''
+    # Load data
+    if df_weights is None: df_weights = pd.read_csv('data/weights.csv')
+
     # Get differential data
     df_weights_dif = df_weights[['fridge_layer', 'bagged', 'day', 'weight']]
     df_weights_dif_fridged = calculate_delta(df_weights_dif[df_weights_dif['fridge_layer']!='OOF'],
@@ -168,7 +188,9 @@ def bagvsnot_test_weight(save_dir='plots'):
 
 
 if __name__ == '__main__':
-    plot_difference_bagvsnot_img_feature()
-    bagvsnot_test_img_feature()
-    plot_difference_bagvsnot_weight()
-    bagvsnot_test_weight()
+    df_colors = pd.read_csv('data/cilantro_stats.csv')
+    df_weights = pd.read_csv('data/weights.csv')
+    plot_difference_bagvsnot_img_feature(df_colors=df_colors)
+    bagvsnot_test_img_feature(df_colors=df_colors)
+    plot_difference_bagvsnot_weight(df_weights=df_weights)
+    bagvsnot_test_weight(df_weights=df_weights)

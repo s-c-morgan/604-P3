@@ -4,12 +4,9 @@ from matplotlib import pyplot as plt
 from testing_functions import maximal_mean_dif_perm_test, binary_perm_mean_test_blocking, f_test
 from utils import calculate_delta
 
-df_colors = pd.read_csv('data/cilantro_stats.csv')
-df_weights = pd.read_csv('data/weights.csv')
+CRITERIA = ['saturation', 'hue', 'value', 'green']
 
-criteria = ['saturation', 'hue', 'value', 'green']
-
-def layer_difference_test_img_feature(criteria=criteria, save_dir='plots'):
+def layer_difference_test_img_feature(criteria=CRITERIA, df_colors=None, save_dir='plots'):
     '''
     Perform hypothesis testing of weather different layers express difference in image features.
     Run a maximum-mean-different permutation test and an f-test, and then save/show the output plot of the null permutation distribution.
@@ -20,10 +17,16 @@ def layer_difference_test_img_feature(criteria=criteria, save_dir='plots'):
         features to be used to run permutation test and f-test
         Must be an element or a sub-list of ['saturation', 'hue', 'value', 'green']
 
+    df_colors : pandas.DataFrame (default None)
+        image feature data in case of preload.
+        If not, load image feature data and save in this variable.
+
     save_dir : Optional(str)
         directory to save data (default to be 'plots')
         if is None, instead of saving, show the image.
     '''
+    if df_colors is None: df_colors = pd.read_csv('data/cilantro_stats.csv')
+
     if type(criteria) == str: criteria = [criteria]
     for criterion in criteria:
 
@@ -50,17 +53,23 @@ def layer_difference_test_img_feature(criteria=criteria, save_dir='plots'):
         plt.close()
     
 
-def layer_difference_test_weight(save_dir='plots'):
+def layer_difference_test_weight(df_weights = None, save_dir='plots'):
     '''
     Perform hypothesis testing of weather different layers express difference in weighting.
     Run a maximum-mean-different permutation test and an f-test, and then save/show the output plot of the null permutation distribution.
 
     Parameters
     ----------
+    df_weights : pandas.DataFrame (default None)
+        weight data in case of preload.
+        If not, load image feature data and save in this variable.
+
     save_dir : Optional(str)
         directory to save data (default to be 'plots')
         if is None, instead of saving, show the image.
     '''
+    # Load data
+    if df_weights is None: df_weights = pd.read_csv('data/weights.csv')
 
     # Get differential data
     df_weights_dif = df_weights[['fridge_layer', 'bagged', 'day', 'weight']]
@@ -85,7 +94,9 @@ def layer_difference_test_weight(save_dir='plots'):
     plt.close()
 
 if __name__ == '__main__':
-    layer_difference_test_img_feature()
-    layer_difference_test_weight()
+    df_colors = pd.read_csv('data/cilantro_stats.csv')
+    df_weights = pd.read_csv('data/weights.csv')
+    layer_difference_test_img_feature(df_colors=df_colors)
+    layer_difference_test_weight(df_weights=df_weights)
 
 
