@@ -11,7 +11,7 @@ PLOT_DIR := plots
 SCR_DIR := scripts
 
 # Default target first
-all : notebook
+all : img-data notebook-plot notebook
 
 # Virtual environment
 $(VENV_DIR) : requirements.txt # check requirement changes
