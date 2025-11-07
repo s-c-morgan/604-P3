@@ -107,6 +107,7 @@ def plot_eda_catplot(features=CRITERIA, save_dir=None):
         g.set_titles("Bag: {col_name}") # Set individual titles for the two plots
         if save_dir is None: plt.show()
         else: plt.savefig(f'{save_dir}/catmap_{feature}.png', bbox_inches='tight')
+        plt.close()
 
 
 if __name__ == '__main__':

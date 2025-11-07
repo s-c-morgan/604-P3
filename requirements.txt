@@ -4,4 +4,6 @@ pandas
 tqdm
 sklearn
 scipy
-notebook
+jupytext
+seaborn
+statsmodels
