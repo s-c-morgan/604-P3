@@ -57,3 +57,4 @@ clean :
 	rm -f project_notebook.ipynb
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name "__pycache__" -delete
+	find . -type d -name ".ipynb_checkpoints"  -exec rm -rf {} +
