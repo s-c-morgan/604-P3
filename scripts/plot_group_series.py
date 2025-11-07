@@ -21,6 +21,7 @@ def generate_plots_img_feature_by_group(criteria=['green', 'saturation', 'value'
     colors = ['salmon', 'orange', 'springgreen', 'royalblue']
 
     # Plotting
+    if isinstance(criteria, str): criteria = [criteria]
     for criterion in criteria:
 
         # Create the plot
@@ -39,16 +40,14 @@ def generate_plots_img_feature_by_group(criteria=['green', 'saturation', 'value'
                         markers[in_bag], color=colors[layer], \
                         label=f'Layer {layer} '+('in bag' if in_bag else 'out bag'), linewidth=2)
 
-            plt.xlabel('Day', fontsize=12)  
-            plt.ylabel(f'Mean {criterion} Value', fontsize=12)
-            plt.title(f'Mean {criterion} Value by Group Across Days'+(f'\nwindow size {window}' if window > 1 else ''), fontsize=14, fontweight='bold')
-            plt.legend(title='Group', bbox_to_anchor=(1.05, 1), loc='upper left')
-            plt.grid(True, alpha=0.3)
-            plt.tight_layout()
-            if save_dir is None: plt.show()
-
-        # Save the plot
-        if save_dir is not None:
+        plt.xlabel('Day', fontsize=12)  
+        plt.ylabel(f'Mean {criterion} Value', fontsize=12)
+        plt.title(f'Mean {criterion} Value by Group Across Days'+(f'\nwindow size {window}' if window > 1 else ''), fontsize=14, fontweight='bold')
+        plt.legend(title='Group', bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        if save_dir is None: plt.show()
+        else:
             window_name = f'_winsize{window}' if window > 1 else ''
             plt.savefig(f'{save_dir}/plot_mean_{criterion}_by_group{window_name}.png', dpi=300, bbox_inches='tight')
             print(f'Plot saved to: {save_dir}/plot_mean_{criterion}_by_group{window_name}.png')
@@ -82,18 +81,20 @@ def generate_plot_weight_by_group(window=0, save_dir='plots'):
                     markers[in_bag], color=colors[layer], \
                     label=f'Layer {layer} '+('in bag' if in_bag else 'out bag'), linewidth=2)
 
-        plt.xlabel('Day', fontsize=12)  
-        plt.ylabel(f'Weight, in g', fontsize=12)
-        plt.yticks([0, 1, 2, 3, 4, 5, 6, 7, 8])
-        plt.title(f'Weight by Group Across Days'+(f'\nwindow size {window}' if window > 1 else ''), fontsize=14, fontweight='bold')
-        plt.legend(title='Group', bbox_to_anchor=(1.05, 1), loc='upper left')
-        plt.grid(True, alpha=0.3)
-        plt.tight_layout()
+    plt.xlabel('Day', fontsize=12)  
+    plt.ylabel(f'Weight, in g', fontsize=12)
+    plt.yticks([0, 1, 2, 3, 4, 5, 6, 7, 8])
+    plt.title(f'Weight by Group Across Days'+(f'\nwindow size {window}' if window > 1 else ''), fontsize=14, fontweight='bold')
+    plt.legend(title='Group', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
 
     # Save the plot
-    window_name = f'_winsize{window}' if window > 1 else ''
-    plt.savefig(f'{save_dir}/plot_weight_by_group{window_name}.png', dpi=300, bbox_inches='tight')
-    print(f'Plot saved to: {save_dir}/plot_weight_by_group{window_name}.png')
+    if save_dir is None: plt.show()
+    else:
+        window_name = f'_winsize{window}' if window > 1 else ''
+        plt.savefig(f'{save_dir}/plot_weight_by_group{window_name}.png', dpi=300, bbox_inches='tight')
+        print(f'Plot saved to: {save_dir}/plot_weight_by_group{window_name}.png')
     plt.close()
 
 if __name__ == '__main__':

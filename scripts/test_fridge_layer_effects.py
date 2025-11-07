@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
-from testing_functions import maximal_mean_dif_perm_test, binary_perm_mean_test_blocking, f_test
-from utils import calculate_delta
+from scripts.testing_functions import maximal_mean_dif_perm_test, binary_perm_mean_test_blocking, f_test
+from scripts.utils import calculate_delta
 
 CRITERIA = ['saturation', 'hue', 'value', 'green']
 
@@ -27,7 +27,7 @@ def layer_difference_test_img_feature(criteria=CRITERIA, df_colors=None, save_di
     '''
     if df_colors is None: df_colors = pd.read_csv('data/cilantro_stats.csv')
 
-    if type(criteria) == str: criteria = [criteria]
+    if isinstance(criteria, str): criteria = [criteria]
     for criterion in criteria:
 
         # Get differential data
