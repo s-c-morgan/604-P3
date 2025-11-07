@@ -12,8 +12,6 @@ The data are saved in the this [Google Drive link](https://drive.google.com/driv
 
 The Makefile is prepared with the following commands:
 
-.PHONY: all venv clean clean-plot clean-img-data img-data notebook all-plot notebook-plot
-
 * `make all`, or `make`: generates csv from image data, plots notebook-relevant plots, and generate project's notebook.
 * `make venv`: generate Python environment.
 * `make clean`: clean up all generated files.
